@@ -1,0 +1,50 @@
+name: scantrix_app
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  webview_flutter: 4.4.2
+  google_fonts: 5.1.0
+  mobile_scanner: ^3.5.2 # Pinaka-stable para sa Flutter 3.13.x
+  permission_handler: ^11.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  flutter_native_splash: ^2.3.1
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.png
+
+# FIXED CONFIG: Splash Screen
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/logo.png
+  
+  # Pinaka-importanteng part para sa Android 12+
+  android_12:
+    image: assets/logo.png
+    icon_background_color: "#ffffff"
+    
+  # Tinanggal ang image_gravity dahil invalid ito sa version mo
+  fullscreen: true
+
+# FIXED CONFIG: Launcher Icons
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/logo.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/logo.png"
+  adaptive_icon_foreground_scale: 1.8
