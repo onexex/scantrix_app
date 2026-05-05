@@ -1,19 +1,17 @@
 workflows:
   android-build:
     name: Asset View Android Build
-    # Gamitin ang 'linux' (standard) o 'linux_x2' (mas mabilis)
-    instance_type: linux
+    # Ang 'linux' ay ang standard na libre/mura na instance
+    instance_type: linux 
     max_build_duration: 60
     environment:
       flutter: stable
-      java: 17
+      groups:
+        - target_platform_android
     scripts:
       - name: Install dependencies
         script: flutter pub get
-      - name: Build Android APK (Release)
+      - name: Build Android APK
         script: flutter build apk --release
-      - name: Build Android App Bundle (Optional)
-        script: flutter build appbundle --release
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
-      - build/app/outputs/bundle/release/*.aab
