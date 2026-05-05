@@ -1,0 +1,20 @@
+workflows:
+  android-build:
+    name: Asset View Android Build
+    instance_type: linux_medium
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      java: currenthome # Karaniwang Java 17 para sa mga bagong Flutter versions
+    scripts:
+      - name: Install dependencies
+        script: flutter pub get
+      - name: Build Android APK (Release)
+        # Gagawa ito ng fat APK (kasama lahat ng architecture)
+        script: flutter build apk --release
+      - name: Build Android App Bundle (Optional)
+        # Mas maganda ito kung i-uupload mo na sa Play Store
+        script: flutter build appbundle --release
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/bundle/release/*.aab
