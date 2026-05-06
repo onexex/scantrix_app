@@ -14,6 +14,7 @@ class ScantrixWebView extends StatefulWidget {
 class _ScantrixWebViewState extends State<ScantrixWebView> {
   late final WebViewController _controller;
   bool _isLoading = true;
+  bool _isError = false; // New: Flag para sa offline/error state
 
   @override
   void initState() {
@@ -21,7 +22,6 @@ class _ScantrixWebViewState extends State<ScantrixWebView> {
     
     _requestCameraPermission();
 
-    // 1. Initialize with Android Parameters for Camera/Mic Access
     late final PlatformWebViewControllerCreationParams params;
     if (WebViewPlatform.instance is AndroidWebViewPlatform) {
       params = AndroidWebViewControllerCreationParams();
@@ -37,10 +37,12 @@ class _ScantrixWebViewState extends State<ScantrixWebView> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (url) {
-            if (mounted) setState(() => _isLoading = true);
+            if (mounted) setState(() {
+              _isLoading = true;
+              _isError = false; // Reset error state pag nag-load ulit
+            });
           },
           onPageFinished: (url) {
-            // FORCE CSS: Eto ang pumapatay sa padding sa kanan
             _controller.runJavaScript('''
               document.documentElement.style.overflowX = 'hidden';
               document.body.style.overflowX = 'hidden';
@@ -49,10 +51,18 @@ class _ScantrixWebViewState extends State<ScantrixWebView> {
             ''');
             if (mounted) setState(() => _isLoading = false);
           },
+          // ETO ANG FIX: Hahawakan nito ang "Web page not available" error
+          onWebResourceError: (WebResourceError error) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _isError = true; // Ipakita ang Offline UI
+              });
+            }
+          },
         ),
       );
 
-    // 2. CAMERA PERMISSION GRANT: Para sa Html5Qrcode ng website mo
     if (_controller.platform is AndroidWebViewController) {
       (_controller.platform as AndroidWebViewController).setOnPlatformPermissionRequest(
         (request) => request.grant(),
@@ -88,11 +98,9 @@ class _ScantrixWebViewState extends State<ScantrixWebView> {
         child: Scaffold(
           backgroundColor: Colors.white,
           body: Stack(
-            // ETO ANG NAG-CE-CENTER SA VIEW AREA
             alignment: Alignment.center, 
             children: [
-              
-              // 1. WEBVIEW: Full width at protected ang taas (SafeArea)
+              // 1. WEBVIEW
               Positioned.fill(
                 child: SafeArea(
                   top: true, 
@@ -101,7 +109,35 @@ class _ScantrixWebViewState extends State<ScantrixWebView> {
                 ),
               ),
 
-              // 2. LOADING SCREEN: Laging nasa gitna
+              // 2. OFFLINE / ERROR UI (Lilitaw pag walang net)
+              if (_isError)
+                Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.wifi_off_rounded, size: 60, color: Colors.grey),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Cannot Load Scantrix",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text("Please check your internet connection.", style: TextStyle(color: Colors.red)),
+                        const SizedBox(height: 25),
+                        ElevatedButton(
+                          onPressed: () => _controller.reload(),
+                          child: const Text("Try Again"),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // 3. LOADING SCREEN
               if (_isLoading)
                 Container(
                   color: Colors.white,
@@ -111,11 +147,7 @@ class _ScantrixWebViewState extends State<ScantrixWebView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          'assets/logo.png',
-                          width: 100,
-                          fit: BoxFit.contain,
-                        ),
+                        Image.asset('assets/logo.png', width: 100, fit: BoxFit.contain),
                         const SizedBox(height: 25),
                         const SizedBox(
                           width: 100,
@@ -128,11 +160,7 @@ class _ScantrixWebViewState extends State<ScantrixWebView> {
                         const SizedBox(height: 15),
                         const Text(
                           "Loading Scantrix...",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                            letterSpacing: 1.2,
-                          ),
+                          style: TextStyle(fontSize: 11, color: Colors.grey, letterSpacing: 1.2),
                         ),
                       ],
                     ),
