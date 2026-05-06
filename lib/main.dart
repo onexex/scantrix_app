@@ -25,6 +25,27 @@ void main() async {
   runApp(const ScantrixApp());
 }
 
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+  
+//   // Payagan ang lahat ng orientations (Portrait at Landscape)
+//   await SystemChrome.setPreferredOrientations([
+//     DeviceOrientation.portraitUp,
+//     DeviceOrientation.portraitDown,
+//     DeviceOrientation.landscapeLeft,
+//     DeviceOrientation.landscapeRight,
+//   ]);
+  
+//   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+//   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+//     statusBarColor: Colors.transparent,
+//     systemNavigationBarColor: Colors.transparent,
+//   ));
+  
+//   runApp(const ScantrixApp());
+// }
+
 class ScantrixApp extends StatelessWidget {
   const ScantrixApp({super.key});
 
